@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#10251b" />
+  <title>BUGBREAK: Colony Siege</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" width="1280" height="720" aria-label="BUGBREAK game canvas"></canvas>
+    <div id="vignette"></div><div id="grain"></div><div id="toast"></div>
+
+    <section id="menu" class="screen active">
+      <div class="menu-card glass">
+        <img class="brand-icon" src="icon-192.png" alt="BUGBREAK app icon" /><div class="eyebrow">UPDATE 5.2 · SHARED RUN FIX</div>
+        <h1><span>BUG</span>BREAK</h1><h2>COLONY SIEGE</h2>
+        <p>A bigger game now: <b>better art, biome music, real boss battle tracks, usernames, settings, simple 4-character co-op rooms, elites, events, relics, contracts, and 50 waves.</b></p>
+        <div class="bug-select" id="bugSelect"></div>
+        <div class="identity-row"><label>PLAYER NAME <input id="usernameInput" maxlength="16" placeholder="BugKeeper" /></label><span id="netBadge" class="net-badge">SOLO</span></div>
+        <div class="menu-actions four"><button id="playBtn" class="primary">START EXPEDITION</button><button id="shopBtn">UPGRADES</button><button id="multiBtn">MULTIPLAYER</button><button id="settingsBtn">SETTINGS</button></div><div id="dailyCard" class="daily-card"></div>
+        <div class="meta-row"><span>Best <b id="bestWave">0</b>/50</span><span>💎 <b id="menuGems">0</b></span><span class="gift">🎁 Starter gems included</span><button id="resetBtn" class="text-btn">Reset save</button></div>
+      </div>
+      <div class="tip glass">WASD move · SPACE bite · SHIFT dash · E special ability · R repair · mobile controls included</div>
+    </section>
+
+    <section id="shop" class="screen"><div class="panel glass wide">
+      <div class="panel-head"><div><div class="eyebrow">Cheaper permanent colony upgrades</div><h3>UPGRADES</h3></div><button data-close="shop" class="icon-btn">✕</button></div>
+      <div id="upgradeGrid" class="upgrade-grid"></div><div class="shop-footer">Gems: <b id="shopGems">0</b> · Costs increase gently now 👁️</div>
+    </div></section>
+
+    <section id="levelup" class="screen"><div class="panel glass"><div class="eyebrow">DNA mutation available</div><h3>CHOOSE A MUTATION</h3><div id="cards" class="cards"></div></div></section>
+    <section id="relic" class="screen"><div class="panel glass"><div class="eyebrow">Boss relic recovered</div><h3>CHOOSE A RELIC</h3><p class="subcopy">Relics last for this expedition and can completely change your build.</p><div id="relicCards" class="cards"></div></div></section>
+    <section id="pause" class="screen"><div class="panel glass small"><h3>PAUSED</h3><button id="resumeBtn" class="primary">RESUME</button><button id="pauseSettingsBtn">SETTINGS</button><button id="quitBtn">QUIT RUN</button></div></section>
+
+    <section id="settings" class="screen"><div class="panel glass settings-panel">
+      <div class="panel-head"><div><div class="eyebrow">Audio & gameplay</div><h3>SETTINGS</h3></div><button id="settingsClose" class="icon-btn">✕</button></div>
+      <div class="setting-list">
+        <label><span><b>MASTER VOLUME</b><small>0%–2000% · over 100% is boosted and can distort</small></span><div><input id="masterVol" type="range" min="0" max="2000" step="10"><output id="masterOut">100%</output></div></label>
+        <label><span><b>MUSIC</b><small>Normal biome music + boss tracks</small></span><div><input id="musicVol" type="range" min="0" max="2000" step="10"><output id="musicOut">100%</output></div></label>
+        <label><span><b>SFX</b><small>Bites, hits, gems, repairs and UI sounds</small></span><div><input id="sfxVol" type="range" min="0" max="2000" step="10"><output id="sfxOut">100%</output></div></label>
+        <label class="toggle-row"><span><b>NORMAL MUSIC</b><small>Ambient biome soundtrack between bosses</small></span><input id="normalMusicToggle" type="checkbox" checked></label>
+        <label class="toggle-row"><span><b>SCREEN SHAKE</b><small>Combat impact camera shake</small></span><input id="shakeToggle" type="checkbox" checked></label>
+      </div>
+      <div class="settings-note">⚠️ 2000% is intentionally extreme. Keep your device volume low before testing boosted audio.</div>
+    </div></section>
+
+    <section id="multiplayer" class="screen"><div class="panel glass multiplayer-panel simple-room-panel">
+      <div class="panel-head"><div><div class="eyebrow">Simple online co-op · 3 players max</div><h3>SHARED YARD</h3></div><button id="multiClose" class="icon-btn">✕</button></div>
+      <p class="multi-copy">One shared yard. The host gets a <b>4-character room code</b>. Friends type the code and join. No invite/answer walls of text.</p>
+      <div class="multi-status"><b id="multiStatus">Not connected</b><span id="rosterText">1 / 3 players</span></div>
+      <div class="room-actions">
+        <div class="room-card host-room-card">
+          <div class="room-label">HOST A YARD</div>
+          <div id="roomCodeDisplay" class="room-code">----</div>
+          <button id="hostRoomBtn" class="primary">CREATE ROOM</button>
+          <button id="copyRoomBtn">COPY 4-CHAR CODE</button>
+        </div>
+        <div class="room-card join-room-card">
+          <div class="room-label">JOIN A FRIEND</div>
+          <input id="roomCodeInput" class="room-code-input" maxlength="4" inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="A7KQ" />
+          <button id="joinRoomBtn" class="primary">JOIN ROOM</button>
+          <button id="disconnectBtn">DISCONNECT</button>
+        </div>
+      </div>
+      <div id="roomRoster" class="room-roster"><div><b>YOU</b><span>Waiting...</span></div></div>
+      <button id="startSharedBtn" class="primary shared-start" hidden>START SHARED EXPEDITION</button>
+      <div id="guestWaitText" class="guest-wait" hidden>Connected! Waiting for the host to start the expedition…</div>
+      <p class="multi-tip"><b>How to play:</b> host creates the room → friends enter the 4-character code → <b>HOST presses START SHARED EXPEDITION</b> → everybody enters Wave 1 automatically. The host owns the shared wave, enemies, boss and nest.</p>
+      <div class="multi-foot">The 4-character code uses PeerJS Cloud only to introduce the browsers; gameplay then uses WebRTC peer-to-peer. No paid server is required. Some highly restricted school/public networks can still block WebRTC.</div>
+    </div></section>
+
+    <section id="gameover" class="screen"><div class="panel glass small"><div class="eyebrow">The predators broke through.</div><h3>RUN OVER</h3><div id="runStats" class="run-stats"></div><button id="againBtn" class="primary">RUN IT BACK</button><button id="menuBtn">MAIN MENU</button></div></section>
+    <section id="victory" class="screen"><div class="panel glass small victory"><div class="crown">👑</div><div class="eyebrow">THE COLONY SURVIVED</div><h3>WAVE 50 CLEARED!</h3><p>You beat the entire backyard campaign. The insects have officially claimed the yard 😭🔥</p><div id="victoryStats" class="run-stats"></div><button id="victoryAgainBtn" class="primary">NEW RUN</button><button id="victoryMenuBtn">MAIN MENU</button></div></section>
+
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="barbox glass"><span>YOU</span><div class="bar"><i id="hpBar"></i></div><b id="hpText"></b></div>
+        <div class="wave glass"><small>WAVE</small><b><span id="waveText">1</span><em>/50</em></b><span id="enemyCount">0 left</span></div>
+        <div class="barbox glass"><span>NEST</span><div class="bar nest"><i id="nestBar"></i></div><b id="nestText"></b></div>
+      </div>
+      <div class="hud-bottom">
+        <div class="currency glass"><span>🍞 <b id="crumbsText">0</b></span><span>💎 <b id="gemsText">0</b></span><span>LV <b id="levelText">1</b></span></div>
+        <div class="xp glass"><i id="xpBar"></i></div><button id="pauseBtn" class="icon-btn glass">Ⅱ</button>
+      </div>
+      <div id="bossBanner" class="boss-banner"><span>⚠</span><div><small>APEX PREDATOR</small><b id="bossName">GARDEN MANTIS</b></div><span>⚠</span></div>
+      <div id="waveReward" class="wave-reward"></div><div id="eventPill" class="event-pill glass">CALM YARD</div><div id="contractHud" class="contract-hud glass"></div><div id="comboHud" class="combo-hud"><b id="comboText">x0</b><span>COMBO</span></div>
+    </div>
+
+    <div id="mobileControls" class="hidden" aria-hidden="true">
+      <div id="stickBase"><div id="stickKnob"></div></div>
+      <div class="action-cluster"><button id="repairBtn" class="action repair">REPAIR<br><small>12 🍞</small></button><button id="specialBtn" class="action special">SPECIAL</button><button id="dashBtn" class="action dash">DASH</button><button id="biteBtn" class="action bite">BITE</button></div>
+    </div>
+  </div>
+  <script src="data.js"></script><script src="audio.js"></script><script src="ui.js"></script><script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script><script src="network.js"></script><script src="game.js"></script>
+
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body>
+</html>
